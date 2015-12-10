@@ -137,6 +137,8 @@ Output:
 
 ## Example
 
+Example 1 from Wikipedia
+
 https://en.wikipedia.org/wiki/User:MarkusSchulze/Schulze_method_examples
 
 Result should be:
@@ -169,15 +171,26 @@ puts_m vs.play_matrix
     [25, 28, 28, 0, 24]
     [25, 28, 28, 31, 0]
 
-puts vs.
+puts vs.winners_array.to_s
 
-      expect(vs.ranks).to eq [3, 1, 2, 0, 4] # E > A > C > B > D
-    end
+#=> [0, 0, 0, 0, 1]
+
+puts_m vs.result_matrix
+
+#=> [0, 1, 1, 1, 0]
+    [0, 0, 0, 1, 0]
+    [0, 1, 0, 1, 0]
+    [0, 0, 0, 0, 0]
+    [1, 1, 1, 1, 0]
+
+vs.classifications.each do |classification|
+  puts classification.map { |e| idx_to_chr(e) }.to_s
+end
+
+#=> ["E", "A", "C", "B", "D"]
 ```
 
 which is the same result of the reference above.
-
-The result strings are always in format `Candidate:Position`, because it's possible that multiple candidates can be on the same rank.
 
 ## Contributing to schulze-vote
 

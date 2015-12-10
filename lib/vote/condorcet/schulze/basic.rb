@@ -97,9 +97,6 @@ module Vote
           @winners_array.each_with_index do |_el, idx|
             row = @play_matrix.row(idx)
             column = @play_matrix.column(idx)
-            puts "--#{idx}--"
-            puts "row: #{row}"
-            puts "column: #{column}"
             if row.each_with_index.all? { |r, index| r >= column[index] }
               @winners_array[idx] = 1
             end

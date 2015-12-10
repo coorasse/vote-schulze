@@ -4,4 +4,3 @@ module Vote
     autoload :Schulze, 'vote/condorcet/schulze'
   end
 end
-

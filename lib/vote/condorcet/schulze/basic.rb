@@ -2,16 +2,15 @@ module Vote
   module Condorcet
     module Schulze
       class Basic
-
         # All-in-One class method to get a calculated SchulzeBasic object
-        def self.do vote_matrix, candidate_count=nil
+        def self.do(vote_matrix, candidate_count = nil)
           instance = new
           instance.load vote_matrix, candidate_count
           instance.run
           instance
         end
 
-        def load vote_matrix, candidate_count=nil
+        def load(vote_matrix, candidate_count = nil)
           input = if vote_matrix.is_a?(Vote::Condorcet::Schulze::Input)
                     vote_matrix
                   else
@@ -33,17 +32,11 @@ module Vote
           rank
         end
 
-        def vote_matrix
-          @vote_matrix
-        end
+        attr_reader :vote_matrix
 
-        def play_matrix
-          @play_matrix
-        end
+        attr_reader :play_matrix
 
-        def result_matrix
-          @result_matrix
-        end
+        attr_reader :result_matrix
 
         def ranks
           @ranking
@@ -54,9 +47,7 @@ module Vote
         end
 
         # return all possible solutions to the votation
-        def winners_array
-          @winners_array
-        end
+        attr_reader :winners_array
 
         def classifications
           @classifications ||= calculate_classifications
@@ -78,7 +69,7 @@ module Vote
             end
           end
 
-          #step 2: find strongest paths
+          # step 2: find strongest paths
           @candidate_count.times do |i|
             @candidate_count.times do |j|
               next if i == j
@@ -103,7 +94,7 @@ module Vote
 
         def calculate_winners
           @winners_array = Array.new(@candidate_count, 0)
-          @winners_array.each_with_index do |el, idx|
+          @winners_array.each_with_index do |_el, idx|
             row = @play_matrix.row(idx)
             column = @play_matrix.column(idx)
             puts "--#{idx}--"
@@ -124,17 +115,15 @@ module Vote
         def calculate_potential_winners
           @potential_winners = []
           winners_array.each_with_index do |val, idx|
-            if val > 0
-              @potential_winners << idx
-            end
+            @potential_winners << idx if val > 0
           end
           @potential_winners
         end
 
         def calculate_beat_couples
           @beat_couples = []
-          ranks.each_with_index do |val, idx|
-            ranks.each_with_index do |val2, idx2|
+          ranks.each_with_index do |_val, idx|
+            ranks.each_with_index do |_val2, idx2|
               next if idx == idx2
               if play_matrix[idx, idx2] > play_matrix[idx2, idx]
                 @beat_couples << [idx, idx2]
@@ -157,7 +146,7 @@ module Vote
           calculate_potential_winners
           calculate_beat_couples
 
-          start_list = (0..ranks.length-1).to_a
+          start_list = (0..ranks.length - 1).to_a
           start_list.sort! { |e1, e2| rank_element(e1) <=> rank_element(e2) }
 
           classifications = []
@@ -183,7 +172,7 @@ module Vote
           end
         end
 
-        def add_element(classifications, classif, potential_winners, beated_list, start_list, element)
+        def add_element(classifications, classif, _potential_winners, beated_list, start_list, element)
           return if beated_list.any? { |c| c[1] == element }
           classification = classif.clone
           classification << element

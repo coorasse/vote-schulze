@@ -6,4 +6,3 @@ module Vote
     end
   end
 end
-

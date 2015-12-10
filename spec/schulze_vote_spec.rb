@@ -11,7 +11,7 @@ end
 describe 'SchulzeVote' do
   describe 'README examples' do
     it 'runs example one' do
-      vote_list_array = [[3,2,1],[1,3,2],[3,1,2]]
+      vote_list_array = [[3, 2, 1], [1, 3, 2], [3, 1, 2]]
       vs = SchulzeBasic.do vote_list_array, 3
       expect(vs.ranks).to eq [2, 1, 0]
     end
@@ -189,7 +189,7 @@ EOF
   end
 
   describe 'complex situation' do
-    #see http://en.wikipedia.org/wiki/User:MarkusSchulze/Schulze_method_examples
+    # see http://en.wikipedia.org/wiki/User:MarkusSchulze/Schulze_method_examples
     it 'example 1 from wikipedia' do
       votestring = <<EOF
 5=A;C;B;E;D
@@ -211,7 +211,7 @@ EOF
       puts_m vs.result_matrix
       puts
       vs.classifications.each do |classification|
-        puts classification.map{|e| idx_to_chr(e) }.to_s
+        puts classification.map { |e| idx_to_chr(e) }.to_s
       end
       expect(vs.ranks).to eq [3, 1, 2, 0, 4] # E > A > C > B > D
     end
@@ -247,7 +247,6 @@ EOF
       vs = SchulzeBasic.do votestring, 5
       expect(vs.ranks).to eq [3, 4, 0, 2, 1] # B > A > D > E > C
     end
-
 
     it 'example 4 from wikipedia' do
       votestring = <<EOF
@@ -339,4 +338,3 @@ EOF
     end
   end
 end
-

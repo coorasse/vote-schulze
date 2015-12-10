@@ -1,10 +1,8 @@
-# vote-schulze
+# Schulze Vote
 
-This gem is a Ruby implementation of the Schulze voting method (with help of the Floyd–Warshall algorithm), a type of the Condorcet voting methods.
+This gem is a Ruby implementation of the Schulze voting method (with help of the Floyd–Warshall algorithm), 
+a type of the Condorcet voting methods.
 
-**Very alpha! Only basic functionality. No tests yet!**
-
-(If you want to write the tests: fork, write, test, push request - Thanks!)
 
 Wikipedia:
 
@@ -14,13 +12,13 @@ Wikipedia:
 ## Install
 
 ``` bash
-gem install vote-schulze
+gem install schulze-vote
 ```
 
 ## Usage
 
 ``` ruby
-require 'vote-schulze'
+require 'schulze-vote'
 vs = SchulzeBasic.do vote_list, candidate_count
 vs.ranks
 vs.ranks_abc
@@ -70,7 +68,7 @@ _or: Why I must give a candidate count value for Array/String inputs?_
 
 Very easy: The reason is, that voters can leave out candidates (they give no special preferences).
 
-So, vote-schulze needs to know, how many real candidates are in the voting process.
+So, schulze-vote needs to know, how many real candidates are in the voting process.
 
 Okay, for Array inputs it's currently a little bit overhead, because the voters array normally should have the size of the candidates count.
 See it as an visual reminder while coding with this gem.
@@ -82,16 +80,15 @@ See it as an visual reminder while coding with this gem.
 (Only weight values, no letters here! See section "_preference order to weight_ example")
 
 ``` ruby
-require 'vote-schulze'
+require 'schulze-vote'
 vote_list_array = [[3,2,1],[1,3,2],[3,1,2]]
 vs = SchulzeBasic.do vote_list_array, 3
-vs.ranks_abc #=> result
 ```
 
 #### String
 
 ``` ruby
-require 'vote-schulze'
+require 'schulze-vote'
 vote_list_string = <<EOF
 A;B;C
 B;C;A
@@ -100,15 +97,13 @@ A,C,B
 4=C;A;B
 EOF
 vs = SchulzeBasic.do vote_list_string, 3
-vs.ranks_abc #=> result
 ```
 
 #### File
 
 ``` ruby
-require 'vote-schulze'
+require 'schulze-vote'
 vs = SchulzeBasic.do File.open('path/to/vote.list')
-vs.ranks_abc #=> result
 ```
 
 ### _preference order to weight_ example
@@ -137,7 +132,8 @@ Internally it will only check if candidate X > candidate Y
 
 Output:
 
-* `.ranking_array` Array: numbers of total wins for each candidate `[candidate A, candidate B, candidate C, ...]`
+* `.ranks` Array: numbers of total wins for each candidate `[candidate A, candidate B, candidate C, ...]`
+* `.winners_array` Array: set 1 if the candidate is a potential winner `[candidate A, candidate B, candidate C, ...]`
 
 ## Example
 
@@ -157,7 +153,7 @@ which is the same result of the reference above.
 
 The result strings are always in format `Candidate:Position`, because it's possible that multiple candidates can be on the same rank.
 
-## Contributing to vote-schulze
+## Contributing to schulze-vote
 
 * Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet
 * Check out the issue tracker to make sure someone already hasn't requested it and/or contributed it
@@ -168,7 +164,15 @@ The result strings are always in format `Candidate:Position`, because it's possi
 * Make sure to add tests for it. This is important so I don't break it in a future version unintentionally.
 * Please try not to mess with the Rakefile, version, or history. If you want to have your own version, or is otherwise necessary, that is fine, but please isolate to its own commit so I can cherry-pick around it.
 
+## Problems? Questions?
+
+![Alessandro Rodi](http://www.gravatar.com/avatar/32d80da41830a6e6c1bb3eb977537e3e)
+
+## Thanks
+
+Thanks to Christoph Grabo for providing the idea and base code of the gem
+
 ## Copyright
 
-Copyright (c) 2011 Christoph Grabo. See LICENSE.txt for further details.
+See LICENSE for further details.
 

@@ -137,16 +137,42 @@ Output:
 
 ## Example
 
-Reference calculation: [Schulze Methode | blog.cgiesel.de (german)](http://blog.cgiesel.de/schulze-methode/)
-
-Example file under `examples/vote4.list`
+https://en.wikipedia.org/wiki/User:MarkusSchulze/Schulze_method_examples
 
 Result should be:
 
 ``` ruby
-sb = SchulzeBasic.do File.open('../examples/vote4.list')
-sb.rank_abc
-#=> ["C:1", "D:2", "B:3", "A:4"]
+votestring = <<EOF
+5=A;C;B;E;D
+5=A;D;E;C;B
+8=B;E;D;A;C
+3=C;A;B;E;D
+7=C;A;E;B;D
+2=C;B;A;D;E
+7=D;C;E;B;A
+8=E;B;A;D;C
+EOF
+vs = SchulzeBasic.do votestring, 5
+puts_m vs.vote_matrix
+
+#=> [0, 20, 26, 30, 22]
+    [25, 0, 16, 33, 18]
+    [19, 29, 0, 17, 24]
+    [15, 12, 28, 0, 14]
+    [23, 27, 21, 31, 0]
+   
+puts_m vs.play_matrix
+
+#=> [0, 28, 28, 30, 24]
+    [25, 0, 28, 33, 24]
+    [25, 29, 0, 29, 24]
+    [25, 28, 28, 0, 24]
+    [25, 28, 28, 31, 0]
+
+puts vs.
+
+      expect(vs.ranks).to eq [3, 1, 2, 0, 4] # E > A > C > B > D
+    end
 ```
 
 which is the same result of the reference above.

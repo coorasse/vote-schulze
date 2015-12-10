@@ -2,6 +2,15 @@ module Vote
   module Condorcet
     module Schulze
       class Basic
+
+        # All-in-One class method to get a calculated SchulzeBasic object
+        def self.do vote_matrix, candidate_count=nil
+          instance = new
+          instance.load vote_matrix, candidate_count
+          instance.run
+          instance
+        end
+
         def load vote_matrix, candidate_count=nil
           input = if vote_matrix.is_a?(Vote::Condorcet::Schulze::Input)
                     vote_matrix
@@ -22,7 +31,6 @@ module Vote
           result
           calculate_winners
           rank
-          calculate_classifications
         end
 
         def vote_matrix
@@ -51,15 +59,7 @@ module Vote
         end
 
         def classifications
-          @classifications
-        end
-
-        # All-in-One class method to get a calculated SchulzeBasic object
-        def self.do vote_matrix, candidate_count=nil
-          instance = new
-          instance.load vote_matrix, candidate_count
-          instance.run
-          instance
+          @classifications ||= calculate_classifications
         end
 
         private
@@ -104,7 +104,12 @@ module Vote
         def calculate_winners
           @winners_array = Array.new(@candidate_count, 0)
           @winners_array.each_with_index do |el, idx|
-            unless @play_matrix.row(idx).any? { |r| @play_matrix.column(idx).any? { |v| v > r } }
+            row = @play_matrix.row(idx)
+            column = @play_matrix.column(idx)
+            puts "--#{idx}--"
+            puts "row: #{row}"
+            puts "column: #{column}"
+            if row.each_with_index.all? { |r, index| r >= column[index] }
               @winners_array[idx] = 1
             end
           end
@@ -115,40 +120,49 @@ module Vote
             row_vectors.map { |e| e.inject(0) { |s, v| s += v } }
         end
 
-        def calculate_classifications
-          @potentials = []
-          ranks = @ranking
-          ranks.each_with_index do |val, idx|
+        # you should call calculate_winners first
+        def calculate_potential_winners
+          @potential_winners = []
+          winners_array.each_with_index do |val, idx|
             if val > 0
-              @potentials << idx
+              @potential_winners << idx
             end
           end
+          @potential_winners
+        end
 
-          @beated = []
+        def calculate_beat_couples
+          @beat_couples = []
           ranks.each_with_index do |val, idx|
             ranks.each_with_index do |val2, idx2|
               next if idx == idx2
-              if @play_matrix[idx, idx2] > @play_matrix[idx2, idx]
-                @beated << [idx, idx2]
+              if play_matrix[idx, idx2] > play_matrix[idx2, idx]
+                @beat_couples << [idx, idx2]
               end
             end
           end
+          @beat_couples
+        end
 
-          def ranke(el)
-            rank = 0
-            rank -= 100 if @potentials.include?(el)
-            @beated.each do |b|
-              rank -= 1 if b[0] == el
-            end
-            rank
+        def rank_element(el)
+          rank = 0
+          rank -= 100 if @potential_winners.include?(el)
+          @beat_couples.each do |b|
+            rank -= 1 if b[0] == el
           end
+          rank
+        end
+
+        def calculate_classifications
+          calculate_potential_winners
+          calculate_beat_couples
 
           start_list = (0..ranks.length-1).to_a
-          start_list.sort!{|e1, e2| ranke(e1) <=> ranke(e2)}
+          start_list.sort! { |e1, e2| rank_element(e1) <=> rank_element(e2) }
 
           classifications = []
-          compute_classifications(classifications, [], @potentials, @beated, start_list)
-          @classifications = classifications
+          compute_classifications(classifications, [], @potential_winners, @beat_couples, start_list)
+          classifications
         end
 
         def compute_classifications(classifications, classif = [], potential_winners, beated_list, start_list)

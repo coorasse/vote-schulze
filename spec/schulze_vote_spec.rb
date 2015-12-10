@@ -1,6 +1,22 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
+def puts_m(matrix)
+  puts matrix.to_a.map(&:inspect)
+end
+
+def idx_to_chr(idx)
+  (idx + 65).chr
+end
+
 describe 'SchulzeVote' do
+  describe 'README examples' do
+    it 'runs example one' do
+      vote_list_array = [[3,2,1],[1,3,2],[3,1,2]]
+      vs = SchulzeBasic.do vote_list_array, 3
+      expect(vs.ranks).to eq [2, 1, 0]
+    end
+  end
+
   describe 'really simple vote with A=B' do
     it 'can solve a simple votation' do
       # the vote is A > B
@@ -186,6 +202,17 @@ EOF
 8=E;B;A;D;C
 EOF
       vs = SchulzeBasic.do votestring, 5
+      puts_m vs.vote_matrix
+      puts
+      puts_m vs.play_matrix
+      puts
+      puts vs.winners_array.to_s
+      puts
+      puts_m vs.result_matrix
+      puts
+      vs.classifications.each do |classification|
+        puts classification.map{|e| idx_to_chr(e) }.to_s
+      end
       expect(vs.ranks).to eq [3, 1, 2, 0, 4] # E > A > C > B > D
     end
 
@@ -238,7 +265,7 @@ EOF
 
       vs = SchulzeBasic.do votestring, 4
       expect(vs.ranks).to eq [0, 1, 0, 1] # B > C, D > A
-      expect(vs.winners_array).to eq [0, 0, 0, 0] # B > C, D > A
+      expect(vs.winners_array).to eq [0, 1, 0, 1] # B is potential winner, D is potential winner
 
       [[1, 2, 3, 0],
        [1, 3, 0, 2],

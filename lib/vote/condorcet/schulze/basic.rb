@@ -17,6 +17,51 @@ module Vote
           self
         end
 
+        def run
+          play
+          result
+          calculate_winners
+          rank
+          calculate_classifications
+        end
+
+        def vote_matrix
+          @vote_matrix
+        end
+
+        def play_matrix
+          @play_matrix
+        end
+
+        def result_matrix
+          @result_matrix
+        end
+
+        def ranks
+          @ranking
+        end
+
+        def voters
+          @vote_count
+        end
+
+        # return all possible solutions to the votation
+        def winners_array
+          @winners_array
+        end
+
+        def classifications
+          @classifications
+        end
+
+        # All-in-One class method to get a calculated SchulzeBasic object
+        def self.do vote_matrix, candidate_count=nil
+          instance = new
+          instance.load vote_matrix, candidate_count
+          instance.run
+          instance
+        end
+
         private
 
         def play
@@ -136,57 +181,6 @@ module Vote
           else
             compute_classifications(classifications, classification, nil, next_beated_list, next_start_list)
           end
-        end
-
-        public
-
-        def self.idx_to_chr(idx)
-          (idx + 65).chr
-        end
-
-        def run
-          play
-          result
-          calculate_winners
-          rank
-          calculate_classifications
-        end
-
-        def vote_matrix
-          @vote_matrix
-        end
-
-        def play_matrix
-          @play_matrix
-        end
-
-        def result_matrix
-          @result_matrix
-        end
-
-        def ranks
-          @ranking
-        end
-
-        def voters
-          @vote_count
-        end
-
-        # return all possible solutions to the votation
-        def winners_array
-          @winners_array
-        end
-
-        def classifications
-          @classifications
-        end
-
-        # All-in-One class method to get a calculated SchulzeBasic object
-        def self.do vote_matrix, candidate_count=nil
-          instance = new
-          instance.load vote_matrix, candidate_count
-          instance.run
-          instance
         end
       end
     end

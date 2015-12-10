@@ -168,6 +168,10 @@ The result strings are always in format `Candidate:Position`, because it's possi
 
 ![Alessandro Rodi](http://www.gravatar.com/avatar/32d80da41830a6e6c1bb3eb977537e3e)
 
+## Thanks
+
+Thanks to Christoph Grabo for providing the idea and base code of the gem
+
 ## Copyright
 
 See LICENSE for further details.

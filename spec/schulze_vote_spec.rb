@@ -174,6 +174,20 @@ EOF
       end
     end
 
+    it 'raises an excpetion when the vote has too many results' do
+      votestring = <<EOF
+A,B,C,D
+EOF
+      vs = SchulzeBasic.do votestring, 4
+      expect { vs.classifications(0) }.to raise_exception TooManyClassificationsException
+      expect { vs.classifications(1) }.to raise_exception TooManyClassificationsException
+      expect { vs.classifications(10) }.to raise_exception TooManyClassificationsException
+      expect { vs.classifications(23) }.to raise_exception TooManyClassificationsException
+      expect { vs.classifications(false) }.not_to raise_exception
+      expect { vs.classifications(24) }.not_to raise_exception
+      expect { vs.classifications(25) }.not_to raise_exception
+    end
+
     it 'B wins' do
       votestring = <<EOF
 C;A;B

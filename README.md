@@ -192,6 +192,13 @@ end
 
 which is the same result of the reference above.
 
+## Classifications
+
+You have a `classifications(limit_results = false)` that you can call.
+If the number of results is greater then the `limit_results` parameter then a `TooManyClassificationsException`
+is raised.
+If you set this parameter to any value other then `false` be careful to catch and manage the exception properly.
+
 ## Contributing to schulze-vote
 
 * Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet

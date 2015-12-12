@@ -49,8 +49,13 @@ module Vote
         # return all possible solutions to the votation
         attr_reader :winners_array
 
-        def classifications
-          @classifications ||= calculate_classifications
+        # compute all possible solutions
+        # since this can take days, there is an option to limit the numeber of calculated classifications
+        # the default is 10. if the system is calculating more then 10 possible classifications it will stop
+        # raising a TooManyClassifications exception
+        # you can set it to false to disable the limit
+        def classifications(limit_results = false)
+          @classifications ||= calculate_classifications(limit_results)
         end
 
         private
@@ -139,7 +144,7 @@ module Vote
           rank
         end
 
-        def calculate_classifications
+        def calculate_classifications(limit_results)
           calculate_potential_winners
           calculate_beat_couples
 
@@ -147,29 +152,35 @@ module Vote
           start_list.sort! { |e1, e2| rank_element(e1) <=> rank_element(e2) }
 
           classifications = []
-          compute_classifications(classifications, [], @potential_winners, @beat_couples, start_list)
+          compute_classifications(classifications, [], @potential_winners, @beat_couples, start_list, limit_results)
           classifications
         end
 
-        def compute_classifications(classifications, classif = [], potential_winners, beated_list, start_list)
+        def compute_classifications(classifications, classif = [], potential_winners,
+                                    beated_list, start_list, limit_results)
           if beated_list.empty?
             start_list.permutation.each do |array|
               classifications << classif + array
+              check_limits(classifications, limit_results)
             end
           else
             if classif.empty? && potential_winners.any?
               potential_winners.each do |element|
-                add_element(classifications, classif, nil, beated_list, start_list, element)
+                add_element(classifications, classif, nil, beated_list, start_list, element, limit_results)
               end
             else
               start_list.each do |element|
-                add_element(classifications, classif, nil, beated_list, start_list, element)
+                add_element(classifications, classif, nil, beated_list, start_list, element, limit_results)
               end
             end
           end
         end
 
-        def add_element(classifications, classif, _potential_winners, beated_list, start_list, element)
+        def check_limits(classifications, limit_results)
+          raise TooManyClassificationsException if limit_results && classifications.size > limit_results
+        end
+
+        def add_element(classifications, classif, _potential_winners, beated_list, start_list, element, limit_results)
           return if beated_list.any? { |c| c[1] == element }
           classification = classif.clone
           classification << element
@@ -178,11 +189,15 @@ module Vote
           next_start_list.delete(element)
           if next_start_list.empty?
             classifications << classification
+            check_limits(classifications, limit_results)
           else
-            compute_classifications(classifications, classification, nil, next_beated_list, next_start_list)
+            compute_classifications(classifications, classification, nil, next_beated_list, next_start_list, limit_results)
           end
         end
       end
     end
   end
+end
+
+class TooManyClassificationsException < StandardError
 end

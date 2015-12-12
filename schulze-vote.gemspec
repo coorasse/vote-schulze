@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = 'schulze-vote'
-  s.version = '2.0.2'
+  s.version = '2.0.3'
 
   s.required_rubygems_version = Gem::Requirement.new('>= 0') if s.respond_to? :required_rubygems_version=
   s.authors = ['Alessandro Rodi']
@@ -16,6 +16,7 @@ Gem::Specification.new do |s|
     'LICENSE',
     'README.md'
   ]
+  s.files = Dir['lib/*.rb']
 
   s.homepage = 'http://github.com/coorasse/schulze-vote'
   s.licenses = ['MIT']

@@ -15,10 +15,16 @@ Wikipedia:
 gem install schulze-vote
 ```
 
+Gemfile
+
+``` ruby
+gem 'schulze-vote', require: 'schulze_vote'
+```
+
 ## Usage
 
 ``` ruby
-require 'schulze-vote'
+require 'schulze_vote'
 vs = SchulzeBasic.do vote_list, candidate_count
 vs.ranks
 vs.ranks_abc
@@ -80,7 +86,7 @@ See it as an visual reminder while coding with this gem.
 (Only weight values, no letters here! See section "_preference order to weight_ example")
 
 ``` ruby
-require 'schulze-vote'
+require 'schulze_vote'
 vote_list_array = [[3,2,1],[1,3,2],[3,1,2]]
 vs = SchulzeBasic.do vote_list_array, 3
 ```
@@ -88,7 +94,7 @@ vs = SchulzeBasic.do vote_list_array, 3
 #### String
 
 ``` ruby
-require 'schulze-vote'
+require 'schulze_vote'
 vote_list_string = <<EOF
 A;B;C
 B;C;A
@@ -102,7 +108,7 @@ vs = SchulzeBasic.do vote_list_string, 3
 #### File
 
 ``` ruby
-require 'schulze-vote'
+require 'schulze_vote'
 vs = SchulzeBasic.do File.open('path/to/vote.list')
 ```
 

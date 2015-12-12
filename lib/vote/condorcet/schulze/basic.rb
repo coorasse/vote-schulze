@@ -58,6 +58,10 @@ module Vote
           @classifications ||= calculate_classifications(limit_results)
         end
 
+        def beat_couples
+          @beat_couples ||= calculate_beat_couples
+        end
+
         private
 
         def play
@@ -123,22 +127,22 @@ module Vote
         end
 
         def calculate_beat_couples
-          @beat_couples = []
+          beat_couples = []
           ranks.each_with_index do |_val, idx|
             ranks.each_with_index do |_val2, idx2|
               next if idx == idx2
               if play_matrix[idx, idx2] > play_matrix[idx2, idx]
-                @beat_couples << [idx, idx2]
+                beat_couples << [idx, idx2]
               end
             end
           end
-          @beat_couples
+          beat_couples
         end
 
         def rank_element(el)
           rank = 0
           rank -= 100 if @potential_winners.include?(el)
-          @beat_couples.each do |b|
+          beat_couples.each do |b|
             rank -= 1 if b[0] == el
           end
           rank
@@ -146,13 +150,12 @@ module Vote
 
         def calculate_classifications(limit_results)
           calculate_potential_winners
-          calculate_beat_couples
 
           start_list = (0..ranks.length - 1).to_a
           start_list.sort! { |e1, e2| rank_element(e1) <=> rank_element(e2) }
 
           classifications = []
-          compute_classifications(classifications, [], @potential_winners, @beat_couples, start_list, limit_results)
+          compute_classifications(classifications, [], @potential_winners, beat_couples, start_list, limit_results)
           classifications
         end
 

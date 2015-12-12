@@ -9,6 +9,28 @@ def idx_to_chr(idx)
 end
 
 describe 'SchulzeVote' do
+
+  describe 'works with numbers' do
+    it '22 wins' do
+      votestring = <<EOF
+30;10;22
+30;22;10
+10;22;30
+10;30;22
+22;30;10
+2=22;10;30
+EOF
+      vs = SchulzeBasic.do votestring, 3
+      # if we order the numbers:
+      # A = 10, B: 20, C: 30
+      # solution ==> 20, 10, 30 - B, A, C
+      vs.classifications.each do |classification|
+        puts classification.map { |e| idx_to_chr(e) }.to_s
+      end
+      expect(vs.ranks).to eq [1, 2, 0]
+    end
+  end
+
   describe 'README examples' do
     it 'runs example one' do
       vote_list_array = [[3, 2, 1], [1, 3, 2], [3, 1, 2]]
@@ -198,6 +220,17 @@ B;C;A
 2=B;A;C
 EOF
       vs = SchulzeBasic.do votestring, 3
+      puts_m vs.vote_matrix
+      puts
+      puts_m vs.play_matrix
+      puts
+      puts vs.winners_array.to_s
+      puts
+      puts_m vs.result_matrix
+      puts
+      vs.classifications.each do |classification|
+        puts classification.map { |e| idx_to_chr(e) }.to_s
+      end
       expect(vs.ranks).to eq [1, 2, 0]
     end
   end

@@ -27,7 +27,6 @@ gem 'schulze-vote', require: 'schulze_vote'
 require 'schulze_vote'
 vs = SchulzeBasic.do vote_list, candidate_count
 vs.ranks
-vs.ranks_abc
 ```
 
 `SchulzeBasic.do` - SchulzeBasic is a short term for `Vote::Condorcet::Schulze::Basic` and `.do` is a method of this class!

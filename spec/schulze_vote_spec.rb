@@ -352,7 +352,6 @@ EOF
         expect(vs.classifications).to include array
       end
       expect(vs.classifications.size).to eq 6
-      puts vs.beat_couples.inspect
       expect(vs.winners_array).to eq [0, 1, 0, 1]
       expect(vs.beat_couples).to eq [[1, 2], [3, 0]]
       expect(vs.ties).to eq [[0, 2], [1, 3]]

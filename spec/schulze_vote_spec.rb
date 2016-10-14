@@ -368,6 +368,7 @@ EOF
       # so the solution is B and D are preferred over A and C
     end
 
+    # https://www.airesis.it/groups/gruppo-di-sviluppo-airesis/proposals/6051-internazionalizzazione-del-gruppo-di-sviluppo-di-airesis
     it 'example 1 from airesis' do
       votestring = <<EOF
 1=C;A;D;B

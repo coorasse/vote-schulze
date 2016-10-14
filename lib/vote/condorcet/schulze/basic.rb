@@ -21,6 +21,7 @@ module Vote
                   end
           @vote_matrix = input.matrix
           @candidate_count = input.candidates
+          @candidates = (0..@candidate_count - 1).to_a
           @vote_count = input.voters
           self
         end
@@ -30,6 +31,7 @@ module Vote
           result
           calculate_winners
           rank
+          calculate_beat_couples
         end
 
         attr_reader :vote_matrix
@@ -50,7 +52,7 @@ module Vote
         attr_reader :winners_array
 
         # compute all possible solutions
-        # since this can take days, there is an option to limit the numeber of calculated classifications
+        # since this can take days, there is an option to limit the number of calculated classifications
         # the default is 10. if the system is calculating more then 10 possible classifications it will stop
         # raising a TooManyClassifications exception
         # you can set it to false to disable the limit
@@ -58,8 +60,29 @@ module Vote
           @classifications ||= calculate_classifications(limit_results)
         end
 
-        def beat_couples
-          @beat_couples ||= calculate_beat_couples
+        attr_reader :beat_couples
+
+        attr_reader :ties
+
+        # compute the final classification with ties included
+        # the result is an array of arrays. each position can contain one or more elements in tie
+        # e.g. [[0,1], [2,3], [4], [5]]
+        def classification_with_ties
+          calculate_potential_winners
+          result = []
+          result << @potential_winners  # add potential winners on first place
+          result += @ties.clone.sort_by { |tie| -@ranking[tie[0]] } # add all the ties ordered by ranking
+          result.uniq!  # remove duplicates (potential winners are also ties)
+          excludeds = (@candidates - result.flatten)  # all remaining elements (not in a tie and not winners)
+          excludeds.each do |excluded|
+            result.each_with_index do |position, index|
+              # insert before another element if they have a better ranking
+              break result.insert(index, [excluded]) if has_better_ranking?(excluded, position[0])
+              # insert at the end if it's the last possible position
+              break result.insert(-1, [excluded]) if index == result.size - 1
+            end
+          end
+          result
         end
 
         private
@@ -126,17 +149,35 @@ module Vote
           @potential_winners
         end
 
+        # calculates @beat_couples and @ties in roder to display results afterward
         def calculate_beat_couples
-          beat_couples = []
+          return if @calculated_beat_couples
+          @beat_couples = []
+          @ties = []
           ranks.each_with_index do |_val, idx|
             ranks.each_with_index do |_val2, idx2|
               next if idx == idx2
-              if play_matrix[idx, idx2] > play_matrix[idx2, idx]
-                beat_couples << [idx, idx2]
-              end
+              next @beat_couples << [idx, idx2] if play_matrix[idx, idx2] > play_matrix[idx2, idx]
+              next unless in_tie?(idx, idx2)
+              next if @ties.any? { |tie| ([idx, idx2] - tie).empty? }
+              tie = @ties.find { |tie| tie.any? { |el| el == idx } }
+              next tie << idx2 if tie
+              tie = @ties.find { |tie| tie.any? { |el| el == idx2 } }
+              next tie << idx if tie
+              @ties << [idx, idx2]
             end
           end
-          beat_couples
+          @calculated_beat_couples = true
+        end
+
+        def in_tie?(idx, idx2)
+          play_matrix[idx, idx2] == play_matrix[idx2, idx] &&
+            @ranking[idx] == @ranking[idx2] &&
+            @winners_array[idx] == @winners_array[idx2]
+        end
+
+        def has_better_ranking?(a, b)
+          @ranking[a] > @ranking[b]
         end
 
         def rank_element(el)
@@ -180,7 +221,7 @@ module Vote
         end
 
         def check_limits(classifications, limit_results)
-          raise TooManyClassificationsException if limit_results && classifications.size > limit_results
+          fail TooManyClassificationsException if limit_results && classifications.size > limit_results
         end
 
         def add_element(classifications, classif, _potential_winners, beated_list, start_list, element, limit_results)

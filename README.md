@@ -204,6 +204,13 @@ If the number of results is greater then the `limit_results` parameter then a `T
 is raised.
 If you set this parameter to any value other then `false` be careful to catch and manage the exception properly.
 
+## Classification with ties
+
+You have a `classification_with_ties` that you can call.
+This method return a uniq classification in array of arrays format to display results on screen.
+Please note that for cases like this: https://en.wikipedia.org/wiki/User:MarkusSchulze/Schulze_method_examples#Example_4 
+it will return the following: [[B,D], [A,C]]
+
 ## Contributing to schulze-vote
 
 * Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet

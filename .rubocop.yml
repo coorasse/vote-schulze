@@ -4,6 +4,9 @@ AllCops:
 Metrics/LineLength:
   Max: 120
 
+Metrics/ClassLength:
+  Max: 115
+
 Style/Documentation:
   Enabled: false
 
@@ -15,6 +18,9 @@ Style/NonNilCheck:
 
 Style/DotPosition:
   EnforcedStyle: trailing
+
+Metrics/ParameterLists:
+  Max: 6
 
 AllCops:
   Include:

@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = 'schulze-vote'
-  s.version = '2.0.6'
+  s.version = '2.1.0'
 
   s.required_rubygems_version = Gem::Requirement.new('>= 0') if s.respond_to? :required_rubygems_version=
   s.authors = ['Alessandro Rodi']
-  s.date = '2015-12-12'
+  s.date = '2016-10-17'
   s.description = 'This gem is a Ruby implementation of the Schulze voting method (with help of the Floyd-Warshall algorithm), a type of the Condorcet voting methods.'
   s.email = 'coorasse@gmail.com'
   s.extra_rdoc_files = [

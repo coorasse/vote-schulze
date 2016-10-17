@@ -9,7 +9,6 @@ def idx_to_chr(idx)
 end
 
 describe 'SchulzeVote' do
-
   describe 'works with numbers' do
     it '22 wins' do
       votestring = <<EOF
@@ -135,6 +134,7 @@ EOF
 EOF
       vs = SchulzeBasic.do votestring, 2
       expect(vs.ranks).to eq [0, 0]
+      expect(vs.classifications(false)).to eq [[0, 1], [1, 0]]
     end
   end
 
@@ -194,9 +194,10 @@ EOF
       [0, 1, 2].permutation.each do |array|
         expect(vs.classifications).to include array
       end
+      expect(vs.classification_with_ties).to eq [[0, 1, 2]]
     end
 
-    it 'raises an excpetion when the vote has too many results' do
+    it 'raises an exception when the vote has too many results' do
       votestring = <<EOF
 A,B,C,D
 EOF
@@ -208,6 +209,35 @@ EOF
       expect { vs.classifications(false) }.not_to raise_exception
       expect { vs.classifications(24) }.not_to raise_exception
       expect { vs.classifications(25) }.not_to raise_exception
+      expect(vs.ties).to eq([[0, 1, 2, 3]])
+      expect(vs.classification_with_ties).to eq([[0, 1, 2, 3]])
+    end
+
+    it 'calculates single classification fast when options are all pair' do
+      votestring = <<EOF
+A,B,C,D,E,F,G,H,I,J
+EOF
+      vs = SchulzeBasic.do votestring, 10
+      expect(vs.classification_with_ties).to eq([[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]])
+      expect { vs.classifications(100) }.to raise_exception TooManyClassificationsException
+    end
+
+    it 'calculates single classification fast when many options are pair' do
+      votestring = <<EOF
+A;B,C,D,E,F,G,H,I,J
+EOF
+      vs = SchulzeBasic.do votestring, 10
+      expect { vs.classifications(10) }.to raise_exception TooManyClassificationsException
+      expect(vs.classification_with_ties).to eq([[0], [1, 2, 3, 4, 5, 6, 7, 8, 9]])
+    end
+
+    it 'calculates single classification fast when most options are pair' do
+      votestring = <<EOF
+A;B;C;D,E,F,G,H,I,J,K,L,M
+EOF
+      vs = SchulzeBasic.do votestring, 13
+      expect { vs.classifications(10) }.to raise_exception TooManyClassificationsException
+      expect(vs.classification_with_ties).to eq([[0], [1], [2], [3, 4, 5, 6, 7, 8, 9, 10, 11, 12]])
     end
 
     it 'B wins' do
@@ -322,6 +352,10 @@ EOF
         expect(vs.classifications).to include array
       end
       expect(vs.classifications.size).to eq 6
+      expect(vs.winners_array).to eq [0, 1, 0, 1]
+      expect(vs.beat_couples).to eq [[1, 2], [3, 0]]
+      expect(vs.ties).to eq [[0, 2], [1, 3]]
+      expect(vs.classification_with_ties).to eq [[1, 3], [0, 2]]
 
       # we have more possible solutions here:
       # B > C > D > A
@@ -333,6 +367,7 @@ EOF
       # so the solution is B and D are preferred over A and C
     end
 
+    # https://www.airesis.it/groups/gruppo-di-sviluppo-airesis/proposals/6051-internazionalizzazione-del-gruppo-di-sviluppo-di-airesis
     it 'example 1 from airesis' do
       votestring = <<EOF
 1=C;A;D;B
@@ -350,6 +385,9 @@ EOF
       vs = SchulzeBasic.do votestring, 4
       expect(vs.ranks).to eq [1, 0, 1, 2]
       expect(vs.winners_array).to eq [1, 0, 0, 1]
+      expect(vs.beat_couples).to eq([[0, 1], [2, 1], [3, 1], [3, 2]])
+      expect(vs.ties).to eq([])
+      expect(vs.classification_with_ties).to eq [[0, 3], [2], [1]]
       # D = 2, A = 1, C = 1, B = 0
       # p[A,X] >= p[X,A] for every X? YES
       # p[B,X] >= p[X,B] for every X? NO
@@ -376,6 +414,51 @@ EOF
     vs = SchulzeBasic.do votestring, 7
     expect(vs.ranks).to eq [1, 2, 0, 2, 5, 4, 6]
     expect(vs.winners_array).to eq [0, 0, 0, 0, 0, 0, 1]
+  end
+
+  it 'a single classification is possible with one tie' do
+    votestring = <<EOF
+74;75;76;77
+76;77;75;74
+76;75;77,74
+75;77,76;74
+74,75,76;77
+74;76;75,77
+74;75;77;76
+74;75,76;77
+77;76;74,75
+75;74,76;77
+74;75;76;77
+76;75;77;74
+74;75;76;77
+74;76;77,75
+EOF
+
+    vs = SchulzeBasic.do votestring, 4
+    expect(vs.ranks).to eq [3, 1, 1, 0]
+    expect(vs.winners_array).to eq [1, 0, 0, 0]
+    expect(vs.ties).to eq [[1, 2]]
+    expect(vs.beat_couples).to eq [[0, 1], [0, 2], [0, 3], [1, 3], [2, 3]]
+    expect(vs.classification_with_ties).to eq [[0], [1, 2], [3]]
+  end
+
+  it 'a classification is possible with three ties' do
+    votestring = <<EOF
+F,D;B,A;E,C
+EOF
+
+    vs = SchulzeBasic.do votestring, 6
+    expect(vs.ranks).to eq [2, 2, 0, 4, 0, 4]
+    expect(vs.winners_array).to eq [0, 0, 0, 1, 0, 1]
+    expect(vs.ties).to eq [[0, 1], [2, 4], [3, 5]]
+    expect(vs.beat_couples).to eq [[0, 2], [0, 4],
+                                   [1, 2], [1, 4],
+                                   [3, 0], [3, 1],
+                                   [3, 2], [3, 4],
+                                   [5, 0], [5, 1],
+                                   [5, 2], [5, 4]
+                                  ]
+    expect(vs.classification_with_ties).to eq [[3, 5], [0, 1], [2, 4]]
   end
 
   describe 'from file' do

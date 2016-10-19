@@ -3,7 +3,15 @@
 This gem is a Ruby implementation of the Schulze voting method (with help of the Floyd–Warshall algorithm), 
 a type of the Condorcet voting methods.
 
+## Master
+
 [![Build Status](https://travis-ci.org/coorasse/schulze-vote.svg?branch=master)](https://travis-ci.org/coorasse/schulze-vote)
+
+## Develop
+
+[![Build Status](https://travis-ci.org/coorasse/schulze-vote.svg?branch=develop)](https://travis-ci.org/coorasse/schulze-vote)
+[![Code Climate](https://codeclimate.com/github/coorasse/schulze-vote/badges/gpa.svg)](https://codeclimate.com/github/coorasse/schulze-vote)
+[![Test Coverage](https://codeclimate.com/github/coorasse/schulze-vote/badges/coverage.svg)](https://codeclimate.com/github/coorasse/schulze-vote/coverage)
 
 Wikipedia:
 

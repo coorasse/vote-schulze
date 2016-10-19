@@ -20,13 +20,14 @@ describe 'SchulzeVote' do
 2=22;10;30
 EOF
       vs = SchulzeBasic.do votestring, 3
+
       # if we order the numbers:
       # A = 10, B: 20, C: 30
       # solution ==> 20, 10, 30 - B, A, C
-      vs.classifications.each do |classification|
+      SchulzeClassifications.new(vs).classifications.each do |classification|
         puts classification.map { |e| idx_to_chr(e) }.to_s
       end
-      expect(vs.ranks).to eq [1, 2, 0]
+      expect(vs.ranking).to eq [1, 2, 0]
     end
   end
 
@@ -34,7 +35,7 @@ EOF
     it 'runs example one' do
       vote_list_array = [[3, 2, 1], [1, 3, 2], [3, 1, 2]]
       vs = SchulzeBasic.do vote_list_array, 3
-      expect(vs.ranks).to eq [2, 1, 0]
+      expect(vs.ranking).to eq [2, 1, 0]
     end
   end
 
@@ -43,28 +44,28 @@ EOF
       # the vote is A > B
       votestring = 'A,B'
       vs = SchulzeBasic.do votestring, 2
-      expect(vs.ranks).to eq [0, 0]
+      expect(vs.ranking).to eq [0, 0]
     end
 
     it 'can solve a simple votation with the number of votes preceeding' do
       # the vote is A = B
       votestring = '1=A,B'
       vs = SchulzeBasic.do votestring, 2
-      expect(vs.ranks).to eq [0, 0]
+      expect(vs.ranking).to eq [0, 0]
     end
 
     it 'with two votes the result is the same' do
       # the vote is A = B
       votestring = '2=A,B'
       vs = SchulzeBasic.do votestring, 2
-      expect(vs.ranks).to eq [0, 0]
+      expect(vs.ranking).to eq [0, 0]
     end
 
     it 'with hundred votes the result is the same' do
       # the vote is A = B
       votestring = '100=A,B'
       vs = SchulzeBasic.do votestring, 2
-      expect(vs.ranks).to eq [0, 0]
+      expect(vs.ranking).to eq [0, 0]
     end
   end
 
@@ -73,28 +74,28 @@ EOF
       # the vote is A > B
       votestring = 'A;B'
       vs = SchulzeBasic.do votestring, 2
-      expect(vs.ranks).to eq [1, 0]
+      expect(vs.ranking).to eq [1, 0]
     end
 
     it 'can solve a simple votation with the number of votes preceeding' do
       # the vote is A > B
       votestring = '1=A;B'
       vs = SchulzeBasic.do votestring, 2
-      expect(vs.ranks).to eq [1, 0]
+      expect(vs.ranking).to eq [1, 0]
     end
 
     it 'with two votes the result is the same' do
       # the vote is A > B
       votestring = '2=A;B'
       vs = SchulzeBasic.do votestring, 2
-      expect(vs.ranks).to eq [1, 0]
+      expect(vs.ranking).to eq [1, 0]
     end
 
     it 'with hundred votes the result is the same' do
       # the vote is A > B
       votestring = '100=A;B'
       vs = SchulzeBasic.do votestring, 2
-      expect(vs.ranks).to eq [1, 0]
+      expect(vs.ranking).to eq [1, 0]
     end
   end
 
@@ -106,7 +107,7 @@ A;B
 B;A
 EOF
       vs = SchulzeBasic.do votestring, 2
-      expect(vs.ranks).to eq [0, 0]
+      expect(vs.ranking).to eq [0, 0]
     end
 
     it 'can solve a simple votation with the number of votes preceeding' do
@@ -115,7 +116,7 @@ EOF
 1=B;A
 EOF
       vs = SchulzeBasic.do votestring, 2
-      expect(vs.ranks).to eq [0, 0]
+      expect(vs.ranking).to eq [0, 0]
     end
 
     it 'with two votes the result is the same' do
@@ -124,7 +125,7 @@ EOF
 2=B;A
 EOF
       vs = SchulzeBasic.do votestring, 2
-      expect(vs.ranks).to eq [0, 0]
+      expect(vs.ranking).to eq [0, 0]
     end
 
     it 'with hundred votes the result is the same' do
@@ -133,8 +134,9 @@ EOF
 100=B;A
 EOF
       vs = SchulzeBasic.do votestring, 2
-      expect(vs.ranks).to eq [0, 0]
-      expect(vs.classifications(false)).to eq [[0, 1], [1, 0]]
+      vc = SchulzeClassifications.new(vs)
+      expect(vs.ranking).to eq [0, 0]
+      expect(vc.classifications(false)).to eq [[0, 1], [1, 0]]
     end
   end
 
@@ -144,7 +146,7 @@ EOF
 A,B,C
 EOF
       vs = SchulzeBasic.do votestring, 3
-      expect(vs.ranks).to eq [0, 0, 0]
+      expect(vs.ranking).to eq [0, 0, 0]
     end
 
     it 'wins C' do
@@ -152,7 +154,7 @@ EOF
 C;A,B
 EOF
       vs = SchulzeBasic.do votestring, 3
-      expect(vs.ranks).to eq [0, 0, 2]
+      expect(vs.ranking).to eq [0, 0, 2]
     end
 
     it 'wins A' do
@@ -160,7 +162,7 @@ EOF
 A;C,B
 EOF
       vs = SchulzeBasic.do votestring, 3
-      expect(vs.ranks).to eq [2, 0, 0]
+      expect(vs.ranking).to eq [2, 0, 0]
     end
 
     it 'wins B' do
@@ -168,7 +170,7 @@ EOF
 B;C,A
 EOF
       vs = SchulzeBasic.do votestring, 3
-      expect(vs.ranks).to eq [0, 2, 0]
+      expect(vs.ranking).to eq [0, 2, 0]
     end
 
     it 'wins C against A wins against B' do
@@ -176,7 +178,7 @@ EOF
 C;A;B
 EOF
       vs = SchulzeBasic.do votestring, 3
-      expect(vs.ranks).to eq [1, 0, 2]
+      expect(vs.ranking).to eq [1, 0, 2]
     end
 
     it 'six votes destroy each other' do
@@ -189,12 +191,13 @@ B;C;A
 B;A;C
 EOF
       vs = SchulzeBasic.do votestring, 3
-      expect(vs.ranks).to eq [0, 0, 0]
+      vc = SchulzeClassifications.new(vs)
+      expect(vs.ranking).to eq [0, 0, 0]
 
       [0, 1, 2].permutation.each do |array|
-        expect(vs.classifications).to include array
+        expect(vc.classifications).to include array
       end
-      expect(vs.classification_with_ties).to eq [[0, 1, 2]]
+      expect(vc.classification_with_ties).to eq [[0, 1, 2]]
     end
 
     it 'raises an exception when the vote has too many results' do
@@ -202,15 +205,16 @@ EOF
 A,B,C,D
 EOF
       vs = SchulzeBasic.do votestring, 4
-      expect { vs.classifications(0) }.to raise_exception TooManyClassificationsException
-      expect { vs.classifications(1) }.to raise_exception TooManyClassificationsException
-      expect { vs.classifications(10) }.to raise_exception TooManyClassificationsException
-      expect { vs.classifications(23) }.to raise_exception TooManyClassificationsException
-      expect { vs.classifications(false) }.not_to raise_exception
-      expect { vs.classifications(24) }.not_to raise_exception
-      expect { vs.classifications(25) }.not_to raise_exception
+      vc = SchulzeClassifications.new(vs)
+      expect { vc.classifications(0) }.to raise_exception TooManyClassificationsException
+      expect { vc.classifications(1) }.to raise_exception TooManyClassificationsException
+      expect { vc.classifications(10) }.to raise_exception TooManyClassificationsException
+      expect { vc.classifications(23) }.to raise_exception TooManyClassificationsException
+      expect { vc.classifications(false) }.not_to raise_exception
+      expect { vc.classifications(24) }.not_to raise_exception
+      expect { vc.classifications(25) }.not_to raise_exception
       expect(vs.ties).to eq([[0, 1, 2, 3]])
-      expect(vs.classification_with_ties).to eq([[0, 1, 2, 3]])
+      expect(vc.classification_with_ties).to eq([[0, 1, 2, 3]])
     end
 
     it 'calculates single classification fast when options are all pair' do
@@ -218,8 +222,9 @@ EOF
 A,B,C,D,E,F,G,H,I,J
 EOF
       vs = SchulzeBasic.do votestring, 10
-      expect(vs.classification_with_ties).to eq([[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]])
-      expect { vs.classifications(100) }.to raise_exception TooManyClassificationsException
+      vc = SchulzeClassifications.new(vs)
+      expect(vc.classification_with_ties).to eq([[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]])
+      expect { vc.classifications(100) }.to raise_exception TooManyClassificationsException
     end
 
     it 'calculates single classification fast when many options are pair' do
@@ -227,8 +232,9 @@ EOF
 A;B,C,D,E,F,G,H,I,J
 EOF
       vs = SchulzeBasic.do votestring, 10
-      expect { vs.classifications(10) }.to raise_exception TooManyClassificationsException
-      expect(vs.classification_with_ties).to eq([[0], [1, 2, 3, 4, 5, 6, 7, 8, 9]])
+      vc = SchulzeClassifications.new(vs)
+      expect { vc.classifications(10) }.to raise_exception TooManyClassificationsException
+      expect(vc.classification_with_ties).to eq([[0], [1, 2, 3, 4, 5, 6, 7, 8, 9]])
     end
 
     it 'calculates single classification fast when most options are pair' do
@@ -236,8 +242,9 @@ EOF
 A;B;C;D,E,F,G,H,I,J,K,L,M
 EOF
       vs = SchulzeBasic.do votestring, 13
-      expect { vs.classifications(10) }.to raise_exception TooManyClassificationsException
-      expect(vs.classification_with_ties).to eq([[0], [1], [2], [3, 4, 5, 6, 7, 8, 9, 10, 11, 12]])
+      vc = SchulzeClassifications.new(vs)
+      expect { vc.classifications(10) }.to raise_exception TooManyClassificationsException
+      expect(vc.classification_with_ties).to eq([[0], [1], [2], [3, 4, 5, 6, 7, 8, 9, 10, 11, 12]])
     end
 
     it 'B wins' do
@@ -250,6 +257,7 @@ B;C;A
 2=B;A;C
 EOF
       vs = SchulzeBasic.do votestring, 3
+      vc = SchulzeClassifications.new(vs)
       puts_m vs.vote_matrix
       puts
       puts_m vs.play_matrix
@@ -258,10 +266,10 @@ EOF
       puts
       puts_m vs.result_matrix
       puts
-      vs.classifications.each do |classification|
+      vc.classifications.each do |classification|
         puts classification.map { |e| idx_to_chr(e) }.to_s
       end
-      expect(vs.ranks).to eq [1, 2, 0]
+      expect(vs.ranking).to eq [1, 2, 0]
     end
   end
 
@@ -279,6 +287,7 @@ EOF
 8=E;B;A;D;C
 EOF
       vs = SchulzeBasic.do votestring, 5
+      vc = SchulzeClassifications.new(vs)
       puts_m vs.vote_matrix
       puts
       puts_m vs.play_matrix
@@ -287,10 +296,10 @@ EOF
       puts
       puts_m vs.result_matrix
       puts
-      vs.classifications.each do |classification|
+      vc.classifications.each do |classification|
         puts classification.map { |e| idx_to_chr(e) }.to_s
       end
-      expect(vs.ranks).to eq [3, 1, 2, 0, 4] # E > A > C > B > D
+      expect(vs.ranking).to eq [3, 1, 2, 0, 4] # E > A > C > B > D
     end
 
     it 'example 2 from wikipedia' do
@@ -306,7 +315,7 @@ EOF
 4=D;C;B;A
 EOF
       vs = SchulzeBasic.do votestring, 4
-      expect(vs.ranks).to eq [2, 0, 1, 3] # D > A > C > B
+      expect(vs.ranking).to eq [2, 0, 1, 3] # D > A > C > B
     end
 
     it 'example 3 from wikipedia' do
@@ -322,7 +331,7 @@ EOF
 5=D;E;C;A;B
 EOF
       vs = SchulzeBasic.do votestring, 5
-      expect(vs.ranks).to eq [3, 4, 0, 2, 1] # B > A > D > E > C
+      expect(vs.ranking).to eq [3, 4, 0, 2, 1] # B > A > D > E > C
     end
 
     it 'example 4 from wikipedia' do
@@ -340,7 +349,8 @@ EOF
       #  D | 6 | 4 | 4 |   |
 
       vs = SchulzeBasic.do votestring, 4
-      expect(vs.ranks).to eq [0, 1, 0, 1] # B > C, D > A
+      vc = SchulzeClassifications.new(vs)
+      expect(vs.ranking).to eq [0, 1, 0, 1] # B > C, D > A
       expect(vs.winners_array).to eq [0, 1, 0, 1] # B is potential winner, D is potential winner
 
       [[1, 2, 3, 0],
@@ -349,13 +359,13 @@ EOF
        [3, 0, 1, 2],
        [3, 1, 0, 2],
        [3, 1, 2, 0]].each do |array|
-        expect(vs.classifications).to include array
+        expect(vc.classifications).to include array
       end
-      expect(vs.classifications.size).to eq 6
+      expect(vc.classifications.size).to eq 6
       expect(vs.winners_array).to eq [0, 1, 0, 1]
       expect(vs.beat_couples).to eq [[1, 2], [3, 0]]
       expect(vs.ties).to eq [[0, 2], [1, 3]]
-      expect(vs.classification_with_ties).to eq [[1, 3], [0, 2]]
+      expect(vc.classification_with_ties).to eq [[1, 3], [0, 2]]
 
       # we have more possible solutions here:
       # B > C > D > A
@@ -383,11 +393,12 @@ EOF
       #  C | 0 | 5 |   | 0 |
       #  D | 0 | 5 | 4 |   |
       vs = SchulzeBasic.do votestring, 4
-      expect(vs.ranks).to eq [1, 0, 1, 2]
+      vc = SchulzeClassifications.new(vs)
+      expect(vs.ranking).to eq [1, 0, 1, 2]
       expect(vs.winners_array).to eq [1, 0, 0, 1]
       expect(vs.beat_couples).to eq([[0, 1], [2, 1], [3, 1], [3, 2]])
       expect(vs.ties).to eq([])
-      expect(vs.classification_with_ties).to eq [[0, 3], [2], [1]]
+      expect(vc.classification_with_ties).to eq [[0, 3], [2], [1]]
       # D = 2, A = 1, C = 1, B = 0
       # p[A,X] >= p[X,A] for every X? YES
       # p[B,X] >= p[X,B] for every X? NO
@@ -412,7 +423,7 @@ B,E,G;A,F;C;D
 EOF
 
     vs = SchulzeBasic.do votestring, 7
-    expect(vs.ranks).to eq [1, 2, 0, 2, 5, 4, 6]
+    expect(vs.ranking).to eq [1, 2, 0, 2, 5, 4, 6]
     expect(vs.winners_array).to eq [0, 0, 0, 0, 0, 0, 1]
   end
 
@@ -435,11 +446,12 @@ EOF
 EOF
 
     vs = SchulzeBasic.do votestring, 4
-    expect(vs.ranks).to eq [3, 1, 1, 0]
+    vc = SchulzeClassifications.new(vs)
+    expect(vs.ranking).to eq [3, 1, 1, 0]
     expect(vs.winners_array).to eq [1, 0, 0, 0]
     expect(vs.ties).to eq [[1, 2]]
     expect(vs.beat_couples).to eq [[0, 1], [0, 2], [0, 3], [1, 3], [2, 3]]
-    expect(vs.classification_with_ties).to eq [[0], [1, 2], [3]]
+    expect(vc.classification_with_ties).to eq [[0], [1, 2], [3]]
   end
 
   it 'a classification is possible with three ties' do
@@ -448,7 +460,8 @@ F,D;B,A;E,C
 EOF
 
     vs = SchulzeBasic.do votestring, 6
-    expect(vs.ranks).to eq [2, 2, 0, 4, 0, 4]
+    vc = SchulzeClassifications.new(vs)
+    expect(vs.ranking).to eq [2, 2, 0, 4, 0, 4]
     expect(vs.winners_array).to eq [0, 0, 0, 1, 0, 1]
     expect(vs.ties).to eq [[0, 1], [2, 4], [3, 5]]
     expect(vs.beat_couples).to eq [[0, 2], [0, 4],
@@ -458,13 +471,13 @@ EOF
                                    [5, 0], [5, 1],
                                    [5, 2], [5, 4]
                                   ]
-    expect(vs.classification_with_ties).to eq [[3, 5], [0, 1], [2, 4]]
+    expect(vc.classification_with_ties).to eq [[3, 5], [0, 1], [2, 4]]
   end
 
   describe 'from file' do
     it 'scan example4' do
       sb = SchulzeBasic.do File.open('spec/support/examples/vote4.list')
-      expect(sb.ranks).to eq([0, 1, 3, 2])
+      expect(sb.ranking).to eq([0, 1, 3, 2])
     end
   end
 end

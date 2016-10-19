@@ -13,7 +13,7 @@ a type of the Condorcet voting methods.
 
 [![Code Climate](https://codeclimate.com/github/coorasse/schulze-vote/badges/gpa.svg)](https://codeclimate.com/github/coorasse/schulze-vote)
 
-
+[![Code Climate](https://codeclimate.com/github/coorasse/schulze-vote/badges/gpa.svg)](https://codeclimate.com/github/coorasse/schulze-vote)
 
 Wikipedia:
 

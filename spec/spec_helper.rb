@@ -7,8 +7,8 @@ require 'schulze_vote'
 # in ./support/ and its subdirectories.
 Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each { |f| require f }
 
-require 'simplecov'
-SimpleCov.start
+require "codeclimate-test-reporter"
+CodeClimate::TestReporter.start
 
 RSpec.configure do |_config|
 end

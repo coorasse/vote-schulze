@@ -1,17 +1,14 @@
 sudo: false
 cache: bundler
 rvm:
-  - 1.9.3
   - 2.0.0
   - 2.1.9
   - 2.2.5
   - 2.3.1
   - ruby-head
-  - jruby-19mode
 matrix:
   fast_finish: true
   allow_failures:
     - rvm: ruby-head
-    - rvm: jruby-19mode
 install: "bundle install --jobs 8"
 script: "bundle exec rspec"

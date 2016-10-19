@@ -4,3 +4,7 @@ group :development do
   gem 'rspec'
   gem 'rubocop'
 end
+
+group :test do
+  gem 'simplecov', require: false
+end

@@ -1,3 +1,5 @@
+sudo: false
+cache: bundler
 rvm:
   - 1.9.3
   - 2.0.0
@@ -6,12 +8,13 @@ rvm:
   - 2.3.1
   - ruby-head
   - jruby-19mode
-install: "bundle install --jobs 8"
-script: "bundle exec rspec"
 matrix:
   fast_finish: true
   allow_failures:
     - rvm: ruby-head
     - rvm: jruby-19mode
-sudo: false
-cache: bundler
+install: "bundle install --jobs 8"
+script: "bundle exec rspec"
+addons:
+  code_climate:
+    repo_token: 8501bc7f607cfd32d8a00e03fcbd111fbfe085bcf5171a70302d44898a72ff54

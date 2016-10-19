@@ -11,6 +11,9 @@ a type of the Condorcet voting methods.
 
 [![Build Status](https://travis-ci.org/coorasse/schulze-vote.svg?branch=develop)](https://travis-ci.org/coorasse/schulze-vote)
 
+[![Code Climate](https://codeclimate.com/github/coorasse/schulze-vote/badges/gpa.svg)](https://codeclimate.com/github/coorasse/schulze-vote)
+
+
 
 Wikipedia:
 

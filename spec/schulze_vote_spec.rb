@@ -29,6 +29,22 @@ EOF
       end
       expect(vs.ranking).to eq [1, 2, 0]
     end
+
+    it '10 wins' do
+      votestring = <<EOF
+10;2;1
+EOF
+      vs = SchulzeBasic.do votestring, 3
+
+      # if we order the numbers:
+      # A = 1, B: 2, C: 10
+      # solution ==> 10, 2, 1 - C, B, A
+      # wrong solution ==> A = 1, B: 10, C: 2 --> B, C, A
+      SchulzeClassifications.new(vs).classifications.each do |classification|
+        puts classification.map { |e| idx_to_chr(e) }.to_s
+      end
+      expect(vs.ranking).to eq [0, 1, 2]
+    end
   end
 
   describe 'README examples' do

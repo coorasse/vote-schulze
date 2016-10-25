@@ -5,10 +5,9 @@ module Vote
         def initialize(vote_list, candidate_count = nil)
           @vote_list = vote_list
           @candidate_count = candidate_count
-
+          @candidates_abc = []
           if @candidate_count.nil?
             insert_vote_file(@vote_list) if vote_list.is_a?(File)
-
           else
             @vote_matrix = ::Matrix.scalar(@candidate_count, 0).extend(Vote::Matrix)
             insert_vote_array(@vote_list) if vote_list.is_a?(Array)
@@ -32,27 +31,30 @@ module Vote
           vs.split(/\n|\n\r|\r/).each do |voter|
             voter = voter.split(/=/)
             vcount = (voter.size == 1) ? 1 : voter[0].to_i
-
             vcount.times do
               tmp = voter.last.split(/;/)
               vote_array << extract_vote_string(tmp)
             end
           end
-
           insert_vote_array vote_array
         end
 
-        def extract_vote_string(tmp)  # array of preferences  [['1, 2'], ['3']. ['4, 5']]
-          tmp2 = []
-          order_and_remap(tmp).
-            map do |e| # find equal-weighted candidates
-            if e[0].size > 1
-              e[0].split(/,/).each { |f| tmp2 << [f, e[1]] }
-            else
-              tmp2 << e
-            end
-          end
+        def extract_vote_string(tmp) # array of preferences  [['1, 2'], ['3']. ['4, 5']]
+          tmp2 = flatten_votes(order_and_remap(tmp))
+          tmp2.map! { |e| [e[0].to_i, e[1]] } if all_numbers?(tmp2)
           tmp2.sort.map { |e| e[1] } # order, strip & add
+        end
+
+        def flatten_votes(votes)
+          tmp2 = []
+          votes.map do |e| # find equal-weighted candidates
+            (e[0].size > 1) ? e[0].split(/,/).each { |f| tmp2 << [f, e[1]] } : tmp2 << e
+          end
+          tmp2
+        end
+
+        def all_numbers?(array)
+          array.map { |e| e[0] }.all? { |el| /\A\d+\z/.match(el) }
         end
 
         def order_and_remap(tmp)

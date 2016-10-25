@@ -6,17 +6,13 @@ a type of the Condorcet voting methods.
 ## Master
 
 [![Build Status](https://travis-ci.org/coorasse/schulze-vote.svg?branch=master)](https://travis-ci.org/coorasse/schulze-vote)
+[![Gem Version](https://badge.fury.io/rb/schulze-vote.svg)](https://badge.fury.io/rb/schulze-vote)
 
 ## Develop
 
 [![Build Status](https://travis-ci.org/coorasse/schulze-vote.svg?branch=develop)](https://travis-ci.org/coorasse/schulze-vote)
 [![Code Climate](https://codeclimate.com/github/coorasse/schulze-vote/badges/gpa.svg)](https://codeclimate.com/github/coorasse/schulze-vote)
 [![Test Coverage](https://codeclimate.com/github/coorasse/schulze-vote/badges/coverage.svg)](https://codeclimate.com/github/coorasse/schulze-vote/coverage)
-
-Wikipedia:
-
-* [Schulze method](http://en.wikipedia.org/wiki/Schulze_method) ([deutsch](http://de.wikipedia.org/wiki/Schulze-Methode))
-* [Floyd–Warshall algorithm](http://en.wikipedia.org/wiki/Floyd%E2%80%93Warshall_algorithm)
 
 ## Install
 
@@ -34,21 +30,27 @@ gem 'schulze-vote', require: 'schulze_vote'
 
 ``` ruby
 require 'schulze_vote'
-vs = SchulzeBasic.do vote_list, candidate_count
-vs.ranks
+vote_list = <<EOF
+C;A;B
+C;B;A
+A;B;C
+A;C;B
+B;C;A
+B;A;C
+EOF
+schulze_basic = SchulzeBasic.do(vote_list, candidate_count)
+schulze_classifications.classification_with_ties # shows the final classification
 ```
-
-`SchulzeBasic.do` - SchulzeBasic is a short term for `Vote::Condorcet::Schulze::Basic` and `.do` is a method of this class!
 
 Input:
 
 * `vote_list`
-  * Array of Arrays: votes of each voter as weights `[ [A,B,C,...],[A,B,C,...],[A,B,C,...] ]`
-  * String: "A;B;C\nA;B;C\n;3=A;B;C..."
+  * Array of Arrays: votes of each voter as weights `[ [1,2,3],[3,2,1],[1,1,2] ]`
+  * String: "A;B;C\nB,A;C\n;3=C;B;A"
   * File: first line **must** be a single integer, following lines like vote_list type String (see vote lists under `examples` directory)
-* `candidate_count` Integer: number of candidates
+* `candidate_count` Integer: number of options
   * **required** for vote_list types of Array and String
-  * _leave empty if vote_list is a File handle!_
+  * leave empty if vote_list is a File
 
 ### String/File format:
 
@@ -84,20 +86,31 @@ Very easy: The reason is, that voters can leave out candidates (they give no spe
 
 So, schulze-vote needs to know, how many real candidates are in the voting process.
 
-Okay, for Array inputs it's currently a little bit overhead, because the voters array normally should have the size of the candidates count.
-See it as an visual reminder while coding with this gem.
-
 ### Examples
 
 #### Array
 
-(Only weight values, no letters here! See section "_preference order to weight_ example")
+Only weight values, no letters here
 
 ``` ruby
 require 'schulze_vote'
 vote_list_array = [[3,2,1],[1,3,2],[3,1,2]]
 vs = SchulzeBasic.do vote_list_array, 3
 ```
+
+```
+voter  => A D C B
+
+weight => 4,1,2,3
+
+A is on first position = highest prio == 4
+B is on last position                 == 1
+C is on third position                == 2
+D is on second position               == 3
+```
+
+Next versions will have an automatic Preference-to-Weight algorithm.
+(Internally only integers are used for calculation of ranking.)
 
 #### String
 
@@ -120,23 +133,8 @@ require 'schulze_vote'
 vs = SchulzeBasic.do File.open('path/to/vote.list')
 ```
 
-### _preference order to weight_ example
 
-```
-voter  => A D C B
-
-weight => 4,1,2,3
-
-A is on first position = highest prio == 4
-B is on last position                 == 1
-C is on third position                == 2
-D is on second position               == 3
-```
-
-Later versions will have an automatic Preference-to-Weight algorithm.
-(Internally only integers are used for calculation of ranking.)
-
-### _SchulzeBasic_
+### SchulzeBasic
 
 It doesn't matter if you start counting at 0 (zero) or 1 (one).
 
@@ -146,8 +144,16 @@ Internally it will only check if candidate X > candidate Y
 
 Output:
 
-* `.ranks` Array: numbers of total wins for each candidate `[candidate A, candidate B, candidate C, ...]`
+* `.ranking` Array: numbers of total wins for each candidate `[candidate A, candidate B, candidate C, ...]`
 * `.winners_array` Array: set 1 if the candidate is a potential winner `[candidate A, candidate B, candidate C, ...]`
+* `.vote_matrix` Matrix: it contains the pairwise defeats
+* `.play_matrix` Matrix: it contains the strongest paths
+* `.result_matrix` Matrix: it contains the beat pairwise
+* `.beat_couples` Array of Pairs: it contains the beat pairwise in array format
+* `.ties` Array of Array: it contains the ties between candidates
+* `.potential_winners` Array: it contains the possible winners
+
+
 
 ## Example
 
@@ -168,7 +174,7 @@ votestring = <<EOF
 7=D;C;E;B;A
 8=E;B;A;D;C
 EOF
-vs = SchulzeBasic.do votestring, 5
+vs = SchulzeBasic.do(votestring, 5)
 puts_m vs.vote_matrix
 
 #=> [0, 20, 26, 30, 22]
@@ -204,18 +210,17 @@ end
 #=> ["E", "A", "C", "B", "D"]
 ```
 
-which is the same result of the reference above.
 
 ## Classifications
 
-You have a `classifications(limit_results = false)` that you can call.
+You have a `SchulzeClassifications.new(vs).classifications(limit_results = false)` that you can call.
 If the number of results is greater then the `limit_results` parameter then a `TooManyClassificationsException`
 is raised.
 If you set this parameter to any value other then `false` be careful to catch and manage the exception properly.
 
 ## Classification with ties
 
-You have a `classification_with_ties` that you can call.
+You have a `SchulzeClassifications.new(vs).classification_with_ties` that you can call.
 This method return a uniq classification in array of arrays format to display results on screen.
 Please note that for cases like this: https://en.wikipedia.org/wiki/User:MarkusSchulze/Schulze_method_examples#Example_4 
 it will return the following: [[B,D], [A,C]]
@@ -233,11 +238,17 @@ it will return the following: [[B,D], [A,C]]
 
 ## Problems? Questions?
 
-![Alessandro Rodi](http://www.gravatar.com/avatar/32d80da41830a6e6c1bb3eb977537e3e)
+[![Alessandro Rodi](http://www.gravatar.com/avatar/32d80da41830a6e6c1bb3eb977537e3e)](https://github.com/coorasse)
 
 ## Thanks
 
 Thanks to Christoph Grabo for providing the idea and base code of the gem
+
+## Wikipedia:
+
+* [Schulze method](http://en.wikipedia.org/wiki/Schulze_method) ([deutsch](http://de.wikipedia.org/wiki/Schulze-Methode))
+* [Schulze method examples](https://en.wikipedia.org/wiki/User:MarkusSchulze/Schulze_method_examples)
+* [Floyd-Warshall algorithm](http://en.wikipedia.org/wiki/Floyd%E2%80%93Warshall_algorithm)
 
 ## Copyright
 

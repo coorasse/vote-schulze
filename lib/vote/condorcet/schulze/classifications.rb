@@ -29,6 +29,8 @@ module Vote
           add_excludeds(result)
         end
 
+        private
+
         def add_excludeds(result)
           excludeds = (@schulze_basic.candidates - result.flatten) # all remaining elements (not in tie, not winners)
           excludeds.each do |excluded|
@@ -41,8 +43,6 @@ module Vote
           end
           result
         end
-
-        private
 
         def better_ranking?(a, b)
           @schulze_basic.ranking[a] > @schulze_basic.ranking[b]

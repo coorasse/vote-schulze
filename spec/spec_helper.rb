@@ -1,5 +1,4 @@
-
-
+require 'rspec-benchmark'
 require 'codeclimate-test-reporter'
 CodeClimate::TestReporter.start
 
@@ -10,5 +9,6 @@ require 'schulze_vote'
 
 Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each { |f| require f }
 
-RSpec.configure do |_config|
+RSpec.configure do |config|
+  config.include RSpec::Benchmark::Matchers
 end

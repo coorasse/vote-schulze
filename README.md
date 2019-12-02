@@ -1,7 +1,7 @@
 # Schulze Vote
 
 This gem is a Ruby implementation of the Schulze voting method (with help of the Floyd–Warshall algorithm), 
-a type of the Condorcet voting methods.
+a type of the Condorcet voting methods. It's the backend algorithm of [Agreeder](https://agreeder.com) and [Airesis](https://airesis.ue). 
 
 ## Master
 
@@ -159,7 +159,7 @@ Output:
 
 Example 1 from Wikipedia
 
-https://en.wikipedia.org/wiki/User:MarkusSchulze/Schulze_method_examples
+<https://en.wikipedia.org/wiki/User:MarkusSchulze/Schulze_method_examples>
 
 Result should be:
 
@@ -222,8 +222,16 @@ If you set this parameter to any value other then `false` be careful to catch an
 
 You have a `SchulzeClassifications.new(vs).classification_with_ties` that you can call.
 This method return a uniq classification in array of arrays format to display results on screen.
-Please note that for cases like this: https://en.wikipedia.org/wiki/User:MarkusSchulze/Schulze_method_examples#Example_4 
+Please note that for cases like this: <https://en.wikipedia.org/wiki/User:MarkusSchulze/Schulze_method_examples#Example_4> 
 it will return the following: [[B,D], [A,C]]
+
+## Tests
+
+Run `bundle exec rspec` to run tests.
+
+### Random votation generator
+
+You can run `bundle exec ruby spec/example_generator.rb [CANDIDATES_NUM] [VOTES_NUM] to generate a random election file in the `examples` folder.
 
 ## Contributing to schulze-vote
 
@@ -244,7 +252,7 @@ it will return the following: [[B,D], [A,C]]
 
 Thanks to Christoph Grabo for providing the idea and base code of the gem
 
-## Wikipedia:
+## Links
 
 * [Schulze method](http://en.wikipedia.org/wiki/Schulze_method) ([deutsch](http://de.wikipedia.org/wiki/Schulze-Methode))
 * [Schulze method examples](https://en.wikipedia.org/wiki/User:MarkusSchulze/Schulze_method_examples)

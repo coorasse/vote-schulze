@@ -15,20 +15,20 @@ module Vote
           end
         end
 
-        def insert_vote_array(va)
-          va.each do |vote|
+        def insert_vote_array(vote_array)
+          vote_array.each do |vote|
             @vote_matrix.each_with_index do |_e, x, y|
               next if x == y
-              @vote_matrix[x, y] += 1 if vote[x] > vote[y]
+              @vote_matrix[x, y] += 1 if vote[x] && vote[y] && vote[x] > vote[y]
             end
           end
-          @vote_count = va.size
+          @vote_count = vote_array.size
         end
 
-        def insert_vote_strings(vs)
+        def insert_vote_strings(vote_strings)
           vote_array = []
 
-          vs.split(/\n|\n\r|\r/).each do |voter|
+          vote_strings.split(/\n|\n\r|\r/).each do |voter|
             voter = voter.split(/=/)
             vcount = (voter.size == 1) ? 1 : voter[0].to_i
             vcount.times do
@@ -61,12 +61,12 @@ module Vote
           tmp.map { |e| [e, @candidate_count - tmp.index(e)] }
         end
 
-        def insert_vote_file(vf)
-          vf.rewind
-          @candidate_count = vf.first.strip.to_i # reads first line for count
+        def insert_vote_file(vote_file)
+          vote_file.rewind
+          @candidate_count = vote_file.first.strip.to_i # reads first line for count
           @vote_matrix = ::Matrix.scalar(@candidate_count, 0).extend(Vote::Matrix)
-          insert_vote_strings vf.read # reads rest of file (w/o line 1)
-          vf.close
+          insert_vote_strings vote_file.read # reads rest of file (w/o line 1)
+          vote_file.close
         end
 
         def matrix

@@ -495,5 +495,19 @@ EOF
       sb = SchulzeBasic.do File.open('spec/support/examples/vote4.list')
       expect(sb.ranking).to eq([0, 1, 3, 2])
     end
+
+    it 'scan example6' do
+      sb = SchulzeBasic.do File.open('spec/support/examples/vote6.list')
+      expect(sb.ranking).to eq([4, 1, 5, 3, 2, 0])
+    end
+  end
+
+  # a set of tests, useful to check alghoritm performance
+  describe 'performance' do
+    it 'runs smoothly with 20 options and 30000 voters' do
+      # TODO: file laoding takes too long.
+      schulze_basic = SchulzeBasic.new.load(File.open('spec/support/examples/vote20.list'))
+      expect { schulze_basic.run }.to perform_under(60).ms
+    end
   end
 end
